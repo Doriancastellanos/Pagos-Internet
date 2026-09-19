@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/postgres"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  nombre    String
+  telefono  String?
+  direccion String?
+  precio    Float     @default(0)
+  notas     String?
+  lat       Float
+  lng       Float
+  createdAt DateTime  @default(now())
+  pagos     Payment[]
+  @@map("clients")
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  periodo   String // formato "YYYY-MM"
+  monto     Float
+  nota      String?
+  createdAt DateTime @default(now())
+  @@map("payments")
+  @@unique([clientId, periodo])
+  @@index([clientId])
+}
