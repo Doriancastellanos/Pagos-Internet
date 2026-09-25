@@ -4,6 +4,7 @@ import L from "leaflet";
 import Link from "next/link";
 import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import { useMiUbicacion } from "./useMiUbicacion";
 import type { ClienteDTO } from "@/lib/tipos";
 import { formatearMes } from "@/lib/utils";
 import { BadgeEstado } from "@/components/Badges";
@@ -15,6 +16,7 @@ type Props = {
   pos?: Punto | null;
   onPick?: (p: Punto) => void;
   resaltarId?: string | null;
+  mostrarMiUbicacion?: boolean;
 };
 
 const COLORES: Record<string, string> = {
@@ -33,6 +35,15 @@ function icono(color: string, grande?: boolean) {
   });
 }
 
+function iconoMiUbicacion() {
+  return L.divIcon({
+    className: "",
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    html: `<div class="ubi-punto"><span class="ubi-anillo"></span><span class="ubi-nucleo"></span></div>`,
+  });
+}
+
 function Clicky({ onPick }: { onPick: (p: Punto) => void }) {
   useMapEvents({
     click(e) {
@@ -42,7 +53,15 @@ function Clicky({ onPick }: { onPick: (p: Punto) => void }) {
   return null;
 }
 
-function Fit({ clientes, pos }: { clientes?: ClienteDTO[]; pos?: Punto | null }) {
+function Fit({
+  clientes,
+  pos,
+  miUbicacion,
+}: {
+  clientes?: ClienteDTO[];
+  pos?: Punto | null;
+  miUbicacion?: Punto | null;
+}) {
   const map = useMap();
 
   useEffect(() => {
@@ -54,7 +73,9 @@ function Fit({ clientes, pos }: { clientes?: ClienteDTO[]; pos?: Punto | null })
     const puntos: [number, number][] = (clientes?.length
       ? clientes.map((c) => [c.lat, c.lng] as [number, number])
       : []
-    ).concat(pos ? [[pos.lat, pos.lng]] : []);
+    )
+      .concat(pos ? [[pos.lat, pos.lng]] : [])
+      .concat(miUbicacion ? [[miUbicacion.lat, miUbicacion.lng]] : []);
 
     if (!puntos.length) return;
 
@@ -74,12 +95,19 @@ function Fit({ clientes, pos }: { clientes?: ClienteDTO[]; pos?: Punto | null })
       ],
       { padding: [35, 35] }
     );
-  }, [clientes, pos, map]);
+  }, [clientes, pos, miUbicacion, map]);
 
   return null;
 }
 
-export function MapaView({ clientes, pos, onPick, resaltarId }: Props) {
+export function MapaView({
+  clientes,
+  pos,
+  onPick,
+  resaltarId,
+  mostrarMiUbicacion = true,
+}: Props) {
+  const miUbicacion = useMiUbicacion(mostrarMiUbicacion);
   return (
     <MapContainer
       center={[20.6668, -103.3918]}
@@ -124,7 +152,18 @@ export function MapaView({ clientes, pos, onPick, resaltarId }: Props) {
           </Popup>
         </Marker>
       ))}
-      <Fit clientes={clientes} pos={pos} />
+      {mostrarMiUbicacion && miUbicacion.estado === "activo" && miUbicacion.pos && (
+        <Marker
+          position={[miUbicacion.pos.lat, miUbicacion.pos.lng]}
+          icon={iconoMiUbicacion()}
+          zIndexOffset={1000}
+        />
+      )}
+      <Fit
+        clientes={clientes}
+        pos={pos}
+        miUbicacion={!onPick && miUbicacion.estado === "activo" ? miUbicacion.pos : null}
+      />
     </MapContainer>
   );
 }

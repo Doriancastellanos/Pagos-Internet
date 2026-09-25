@@ -18,3 +18,40 @@ body {
   margin: 12px 14px;
   font-size: 13px;
 }
+
+.ubi-punto {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+
+.ubi-anillo {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgba(37, 99, 235, 0.3);
+  animation: ubi-pulso 2.2s ease-out infinite;
+}
+
+.ubi-nucleo {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #2563eb;
+  border: 3px solid #ffffff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes ubi-pulso {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
