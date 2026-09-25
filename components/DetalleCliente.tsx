@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -58,6 +58,17 @@ export default function DetalleCliente({ cliente }: Props) {
     else window.alert("No se pudo eliminar el pago");
   }
 
+  async function eliminarCliente() {
+    if (!window.confirm(`¿Seguro que quieres eliminar a ${cliente.nombre}? Esta acción no se puede deshacer, se borrarán también todos sus pagos.`)) return;
+    const res = await fetch(`/api/clientes/${cliente.id}`, { method: "DELETE" });
+    if (res.ok) {
+      router.push("/clientes");
+      router.refresh();
+    } else {
+      window.alert("No se pudo eliminar el cliente");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-100">
       <Nav activo="clientes" />
@@ -89,6 +100,12 @@ export default function DetalleCliente({ cliente }: Props) {
             className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
           >
             {editando ? "Cancelar edición" : "Editar cliente"}
+          </button>
+          <button
+            onClick={eliminarCliente}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+          >
+            Eliminar cliente
           </button>
         </div>
 
@@ -141,7 +158,7 @@ export default function DetalleCliente({ cliente }: Props) {
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-medium text-slate-700" htmlFor="monto">
-                          Monto ($)
+                          Monto (Q)
                         </label>
                         <input
                           id="monto"

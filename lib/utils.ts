@@ -34,9 +34,9 @@ export function formatearFecha(iso: string): string {
 }
 
 export function moneda(n: number): string {
-  return n.toLocaleString("es-MX", {
+  return n.toLocaleString("es-GT", {
     style: "currency",
-    currency: "MXN",
+    currency: "GTQ",
     maximumFractionDigits: 2,
   });
 }
